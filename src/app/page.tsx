@@ -1,14 +1,14 @@
 "use client";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import db from "../../firebase";
-import { useState } from "react";
-
+import { useRef, useState } from "react";
+import emailjs from "@emailjs/browser";
 export default function Home() {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(false);
-
+  const form = useRef<HTMLFormElement | null>(null);
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
@@ -34,6 +34,16 @@ export default function Home() {
       setName("");
       setEmail("");
       setDisabled(true);
+      if (form.current) {
+        emailjs
+          .sendForm("service_gzhuhu6", "template_hxzu6fl", form.current, "g8SPOAXBmEcPAciCF")
+          .then((result) => {
+            console.log(result.text);
+          })
+          .catch((error) => {
+            console.error(error.text);
+          });
+      }
     } catch (error) {
       console.error("Error saving RSVP: ", error);
       alert("Failed to save your RSVP. Please try again.");
@@ -48,13 +58,14 @@ export default function Home() {
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <h1 className="text-2xl font-bold text-gray-700 mb-4">Waukesha 37 Officer Installation RSVP</h1>
-        <form onSubmit={handleSubmit}>
+        <form ref={form} onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
               Name
             </label>
             <input
               type="text"
+              name="to_name"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -70,6 +81,7 @@ export default function Home() {
             <input
               type="email"
               id="email"
+              name="to_email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
