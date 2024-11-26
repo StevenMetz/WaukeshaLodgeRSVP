@@ -56,8 +56,11 @@ export default function Home() {
 
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
         <h1 className="text-2xl font-bold text-gray-700 mb-4">Waukesha 37 Officer Installation RSVP</h1>
+
+        <p className="text-black text-l pb-1">When: December 14th @ 4:30pm</p>
+        <p className="text-black text-l pb-5">Where: 317 South St. Waukesha, WI 53186</p>
         <form ref={form} onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
