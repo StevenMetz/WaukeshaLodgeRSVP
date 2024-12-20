@@ -14,7 +14,7 @@ export default function Home() {
 
     try {
       // Check if the email already exists
-      const q = query(collection(db, "rsvps"), where("lowercaseEmail", "==", email.toLowerCase()));
+      const q = query(collection(db, "ThirstyDuck"), where("lowercaseEmail", "==", email.toLowerCase()));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
@@ -23,7 +23,7 @@ export default function Home() {
       }
 
       // Add RSVP to Firestore
-      await addDoc(collection(db, "rsvps"), {
+      await addDoc(collection(db, "ThirstyDuck"), {
         name: name,
         email: email,
         lowercaseEmail: email.toLowerCase(),
@@ -39,6 +39,7 @@ export default function Home() {
           .sendForm("service_gzhuhu6", "template_hxzu6fl", form.current, "g8SPOAXBmEcPAciCF")
           .then((result) => {
             console.log(result.text);
+            console.log(result);
           })
           .catch((error) => {
             console.error(error.text);
@@ -57,10 +58,10 @@ export default function Home() {
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
-        <h1 className="text-2xl font-bold text-gray-700 mb-4">Waukesha 37 Officer Installation RSVP</h1>
+        <h1 className="text-2xl font-bold text-gray-700 mb-4">Thirsy Duck Bowling RSVP</h1>
 
-        <p className="text-black text-l pb-1">When: December 14th @ 4:30pm</p>
-        <p className="text-black text-l pb-5">Where: 317 South St. Waukesha, WI 53186</p>
+        <p className="text-black text-l pb-1">When: January 18th @ 6:00pm</p>
+        <p className="text-black text-l pb-5">Where: 64W23180 Main St. Sussex , WI 53089 </p>
         <form ref={form} onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
