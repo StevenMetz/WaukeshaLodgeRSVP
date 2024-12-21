@@ -58,7 +58,7 @@ export default function Home() {
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
-        <h1 className="text-2xl font-bold text-gray-700 mb-4">Thirsy Duck Bowling RSVP</h1>
+        <h1 className="text-2xl font-bold text-gray-700 mb-4">Thirsty Duck Bowling RSVP</h1>
 
         <p className="text-black text-l pb-1">When: January 18th @ 6:00pm</p>
         <p className="text-black text-l pb-5">Where: 64W23180 Main St. Sussex , WI 53089 </p>
