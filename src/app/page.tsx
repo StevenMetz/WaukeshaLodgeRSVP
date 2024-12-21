@@ -98,7 +98,7 @@ export default function Home() {
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
             disabled={disabled}
           >
-            Submit
+            Confirm RSVP
           </button>
         </form>
         {successMessage && <p className="text-green-500 mt-4">Thank you for your RSVP!</p>}
