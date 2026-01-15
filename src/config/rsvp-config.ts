@@ -1,3 +1,22 @@
+export type InputType = 'text' | 'email' | 'number' | 'textarea';
+
+export interface InputConfig {
+  name: string;
+  label: string;
+  type: InputType;
+  required?: boolean;
+  placeholder?: string;
+  description?: string;
+  defaultValue?: string | number;
+  validation?: {
+    pattern?: RegExp;
+    min?: number;
+    max?: number;
+    maxLength?: number;
+    errorMessage?: string;
+  };
+}
+
 export interface RSVPConfig {
   event: {
     title: string;
@@ -9,81 +28,74 @@ export interface RSVPConfig {
     templateId: string;
     publicKey: string;
   };
-  fields: {
-    name: {
-      label: string;
-      placeholder: string;
-      errorMessage: string;
-    };
-    email: {
-      label: string;
-      placeholder: string;
-      errorMessageReq: string;
-      errorMessageInvalid: string;
-      errorMessageDuplicate: string;
-      errorMessageSaveFail: string;
-    };
-    guests: {
-      label: string;
-      description: string;
-      errorMessage: string;
-    };
-    notes: {
-      label: string;
-      placeholder: string;
-      description: string;
-      errorMessage: string;
-      maxChars: number;
-    };
-  };
+  inputs: InputConfig[];
   ui: {
     submitButtonText: string;
     submitButtonLoadingText: string;
     successMessage: string;
+    errors: {
+      duplicateEmail: string;
+      saveFailed: string;
+    };
   };
 }
 
 export const rsvpConfig: RSVPConfig = {
   event: {
-    title: "Waukesha Lodge No. 37 – RSVP",
-    subtitle: "Steak Dinner Event • $15 at the door",
-    collectionName: "Steak-Dinner",
+    title: "Waukesha Lodge No. 37 – Feedback",
+    subtitle: "Gate 0 of Parlor Plan",
+    collectionName: "Feedback",
   },
   emailjs: {
     serviceId: "service_gzhuhu6",
     templateId: "template_hxzu6fl",
     publicKey: "g8SPOAXBmEcPAciCF",
   },
-  fields: {
-    name: {
+  inputs: [
+    {
+      name: "name",
       label: "Full Name *",
+      type: "text",
+      required: true,
       placeholder: "Enter your full name",
-      errorMessage: "Name is required",
+      defaultValue: "",
+      validation: {
+        maxLength: 200,
+        errorMessage: "Name is required",
+      },
     },
-    email: {
+    {
+      name: "email",
       label: "Email Address *",
+      type: "email",
+      required: true,
       placeholder: "Enter your email address",
-      errorMessageReq: "Email is required",
-      errorMessageInvalid: "Email is invalid",
-      errorMessageDuplicate: "This email has already RSVP'd",
-      errorMessageSaveFail: "Failed to save RSVP. Please try again.",
+      defaultValue: "",
+      validation: {
+        pattern: /\S+@\S+\.\S+/,
+        maxLength: 200,
+        errorMessage: "Valid email is required",
+      },
     },
-    guests: {
-      label: "Number of Guests",
-      description: "Enter 0 if attending alone",
-      errorMessage: "Number of guests cannot be negative",
+    {
+      name: "feedback",
+      label: "Feedback",
+      type: "textarea",
+      required: true,
+      defaultValue: "",
+      validation: {
+        maxLength: 200,
+        errorMessage: "Feedback is required",
+      },
     },
-    notes: {
-      label: "Special Notes (Optional)",
-      placeholder: "Any special dietary requirements or notes...",
-      description: "Optional: dietary restrictions, accessibility needs, etc.",
-      errorMessage: "Notes cannot exceed 200 characters",
-      maxChars: 200,
-    },
-  },
+  ],
   ui: {
-    submitButtonText: "Submit RSVP",
-    submitButtonLoadingText: "Submitting...",
-    successMessage: "Thank you for your RSVP! We look forward to seeing you.",
+    submitButtonText: "Confirm Feedback",
+    submitButtonLoadingText: "Confirming...",
+    successMessage: "Thank you for your feedback!",
+    errors: {
+      duplicateEmail: "This email has already been submitted.",
+      saveFailed: "Failed to save feedback. Please try again.",
+    },
   },
 };
