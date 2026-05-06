@@ -9,7 +9,7 @@ export interface InputConfig {
   description?: string;
   defaultValue?: string | number;
   validation?: {
-    pattern?: RegExp;
+    pattern?: string;
     min?: number;
     max?: number;
     maxLength?: number;
@@ -72,7 +72,7 @@ export const rsvpConfig: RSVPConfig = {
       placeholder: "Enter your email address",
       defaultValue: "",
       validation: {
-        pattern: /\S+@\S+\.\S+/,
+        pattern: "^\\S+@\\S+\\.\\S+$",
         maxLength: 200,
         errorMessage: "Valid email is required",
       },
