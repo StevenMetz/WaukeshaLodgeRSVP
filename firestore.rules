@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. Config Collection Rules
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // 2. Dynamic Wildcard mapping for ALL your Event collections
+    // Matches any collection name (Steak-Dinner, feedback, etc)
+    match /{collectionName}/{rsvpId} {
+      // We block 'config' here so nobody can bypass the admin rule above
+      allow create: if collectionName != 'config' &&
+                    request.resource.data.email != null &&
+                    request.resource.data.lowercaseEmail != null &&
+                    !exists(/databases/$(database)/documents/$(collectionName)/$(request.resource.data.lowercaseEmail));
+                    
+      allow read, update, delete: if collectionName != 'config';
+    }
+  }
+}

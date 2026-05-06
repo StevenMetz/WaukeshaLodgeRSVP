@@ -1,10 +1,12 @@
 "use client";
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
 import db from "../../firebase";
 import { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 import LodgeEmblem from "../components/LodgeEmblem";
-import { rsvpConfig, InputConfig } from "../config/rsvp-config";
+import { RSVPConfig, InputConfig } from "../config/rsvp-config";
+import { fetchRsvpConfig } from "../lib/config-service";
+import { useEffect } from "react";
 import InputField from "../components/ui/InputField";
 import TextAreaField from "../components/ui/TextAreaField";
 import SubmitButton from "../components/ui/SubmitButton";
@@ -18,17 +20,46 @@ interface FormErrors {
 }
 
 export default function Home() {
-  // Initialize state based on config
-  const initialValues: FormValues = rsvpConfig.inputs.reduce((acc, input) => {
-    acc[input.name] = input.defaultValue ?? "";
-    return acc;
-  }, {} as FormValues);
-
-  const [formValues, setFormValues] = useState<FormValues>(initialValues);
+  const [rsvpConfig, setRsvpConfig] = useState<RSVPConfig | null>(null);
+  const [formValues, setFormValues] = useState<FormValues>({});
   const [successMessage, setSuccessMessage] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
   const form = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const config = await fetchRsvpConfig();
+        setRsvpConfig(config);
+        
+        // Initialize form values based on config inputs
+        const initialVals: FormValues = config.inputs.reduce((acc, input) => {
+          acc[input.name] = input.defaultValue ?? "";
+          return acc;
+        }, {} as FormValues);
+        setFormValues(initialVals);
+      } catch (err) {
+        console.error("Failed to load RSVP Config", err);
+      } finally {
+        setIsPageLoading(false);
+      }
+    };
+    loadConfig();
+  }, []);
+
+  if (isPageLoading || !rsvpConfig) {
+    return (
+      <div className="bg-lodge-gray-light flex items-center justify-center min-h-screen p-4">
+        <div className="animate-pulse flex flex-col items-center">
+          <LodgeEmblem size={70} />
+          <p className="mt-4 text-lodge-navy font-semibold text-lg">Loading Form...</p>
+        </div>
+      </div>
+    );
+  }
+
   const { event, emailjs: emailConfig, inputs, ui } = rsvpConfig;
 
   const validateForm = (): boolean => {
@@ -43,7 +74,7 @@ export default function Home() {
       }
       
       // Pattern check (Regex)
-      if (input.validation?.pattern && typeof value === 'string' && value && !input.validation.pattern.test(value)) {
+      if (input.validation?.pattern && typeof value === 'string' && value && !new RegExp(input.validation.pattern).test(value)) {
         newErrors[input.name] = input.validation.errorMessage || "Invalid format";
       }
       
@@ -115,7 +146,8 @@ export default function Home() {
         timestamp: new Date(),
       };
 
-      await addDoc(collection(db, event.collectionName), rsvpData);
+      const rsvpDocRef = doc(db, event.collectionName, String(rsvpData.lowercaseEmail));
+      await setDoc(rsvpDocRef, rsvpData);
 
       if (form.current) {
         // Prepare data for EmailJS - mapping keys if necessary, or assuming template uses same keys
@@ -125,16 +157,30 @@ export default function Home() {
             ...formValues
         };
 
-        await emailjs.send(
-          emailConfig.serviceId,
-          emailConfig.templateId,
-          templateParams,
-          emailConfig.publicKey
-        );
+        try {
+          await emailjs.send(
+            emailConfig.serviceId,
+            emailConfig.templateId,
+            templateParams,
+            emailConfig.publicKey
+          );
+        } catch (emailError: any) {
+          console.error("Firebase successfully saved the RSVP, but EmailJS failed to send the notification email:", emailError?.text || emailError);
+          // We do not throw here, because the RSVP data is already securely saved.
+        }
       }
 
       setSuccessMessage(true);
-      setFormValues(initialValues); // Reset form
+      setSuccessMessage(true);
+      
+      // Reset form variables dynamically from current config
+      const initialVals: FormValues = rsvpConfig.inputs.reduce((acc, input) => {
+        acc[input.name] = input.defaultValue ?? "";
+        return acc;
+      }, {} as FormValues);
+      setFormValues(initialVals);
+      
+      form.current?.reset();
       form.current?.reset();
     } catch (error) {
       console.error("Error saving RSVP: ", error);
