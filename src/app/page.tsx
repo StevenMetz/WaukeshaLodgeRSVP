@@ -164,8 +164,8 @@ export default function Home() {
             templateParams,
             emailConfig.publicKey
           );
-        } catch (emailError: any) {
-          console.error("Firebase successfully saved the RSVP, but EmailJS failed to send the notification email:", emailError?.text || emailError);
+        } catch (emailError: unknown) {
+          console.error("Firebase successfully saved the RSVP, but EmailJS failed to send the notification email:", emailError instanceof Error ? emailError.message : String(emailError));
           // We do not throw here, because the RSVP data is already securely saved.
         }
       }
